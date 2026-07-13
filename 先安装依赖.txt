@@ -1,0 +1,13 @@
+## 先安装依赖
+# 方式一  安装必要依赖
+pip install docxtpl matplotlib lxml
+
+# 方式二  一键安装必要依赖
+pip install -r requirements.txt
+
+
+##菜单操作##
+1. 下载巡检文件 — 从远程同步最新 XML 数据
+2. 生成巡检报告 — 解析 XML 生成 Word 报告
+3. 删除本地旧文件 — 清理本地 XML 数据
+0. 退出
