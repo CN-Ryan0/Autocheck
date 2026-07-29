@@ -661,7 +661,7 @@ GenerateXml(){
     EndElement "member"
 
     StartMemberElement "env"
-    env
+    env | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'
     EndElement "member"
 
     StartMemberElement "iptables config"
