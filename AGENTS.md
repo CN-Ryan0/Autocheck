@@ -32,7 +32,7 @@ Report order: server first, then database. On failure, print error and pause —
 
 - Require **root**; support Anolis / CentOS / Ubuntu / RedHat / Oracle Linux only
 - Require `/etc/assetname` formatted as `project name-system name-192.168.0.1`
-- `ora_check_xml.sh` auto-detects Oracle user (`oracle` or `oracle12c`)
+- `oracle_check_xml.sh` auto-detects Oracle user (`oracle` or `oracle12c`)
 - Upload direction (SSH): port **8859**; Download direction (rsync): port **8858**
 
 ## Report quirks

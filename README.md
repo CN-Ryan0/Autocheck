@@ -23,8 +23,8 @@
 | 文件 | 需替换内容 | 说明 |
 |------|-----------|------|
 | `handler/remote_downloader.py` | `[yourpassword]`, `[user]@[server_ip]`（第 21-22 行） | rsync 密码和服务器地址 |
-| `scripts/system_check_xml.sh` | `[user]@[server_ip]`（ssh/scp 目标） | 服务器采集脚本上传目标 |
-| `scripts/ora_check_xml.sh` | `[user]@[server_ip]`（ssh/scp 目标） | 数据库采集脚本上传目标 |
+| `scripts/system_check.sh` | `[user]@[server_ip]`（ssh/scp 目标） | 服务器采集脚本上传目标 |
+| `scripts/oracle_check.sh` | `[user]@[server_ip]`（ssh/scp 目标） | 数据库采集脚本上传目标 |
 
 服务器采集脚本部署在远程 Linux 服务器上运行，**不在本地执行**。详见下方"远程服务器要求"。
 
@@ -101,8 +101,8 @@ Autocheck/
 │   ├── server_template.docx      # 服务器报告 Word 模板
 │   └── database_template.docx    # 数据库报告 Word 模板
 ├── scripts/                      # 远程服务器采集脚本
-│   ├── system_check_xml.sh       # 服务器信息采集脚本
-│   └── ora_check_xml.sh          # 数据库信息采集脚本
+│   ├── system_check.sh           # 服务器信息采集脚本
+│   └── oracle_check.sh           # 数据库信息采集脚本
 ├── cwRsync/                      # Windows 版 rsync 工具集
 ├── generate_report.bat           # Windows 启动脚本
 ├── requirements.txt              # Python 依赖列表
@@ -117,7 +117,7 @@ Autocheck/
 - 远程服务器必须存在 `/etc/assetname` 文件，格式为：`项目名称-系统名称-IP地址`
 - 采集脚本仅支持 **Anolis / CentOS / Ubuntu / RedHat / Oracle Linux** 系统
 - 采集脚本需要 **root 权限** 执行
-- `ora_check_xml.sh` 自动检测 Oracle 用户（优先 `oracle`，备用 `oracle12c`）
+- `oracle_check.sh` 自动检测 Oracle 用户（优先 `oracle`，备用 `oracle12c`）
 - 部署前需在远程服务器上配置 SSH 密钥（`/root/.ssh/id_rsa`），并将公钥添加到中转服务器的 `authorized_keys`（端口 8859）
 
 ### 端口说明

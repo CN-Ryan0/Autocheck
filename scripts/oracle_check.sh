@@ -196,7 +196,7 @@ AddPrivateKey() {
 
 # 在远程主机上创建目录
 MakeRemoteDir() {
-        ssh -p 8859 -i /root/.ssh/id_rsa [user]@[server_ip] "mkdir -p /autoc/ora_check/logs/${PROJECTNAME}/${ASSETID}"
+        ssh -p 8859 -i /root/.ssh/id_rsa [user]@[server_ip] "mkdir -p /autoc/oracle_check/logs/${PROJECTNAME}/${ASSETID}"
         if [ $? -eq 0 ];then
             echo "$(InsertNode)${LIGHTGREEN}Remote log directory created successfully.${NORMAL}"
         else
@@ -206,7 +206,7 @@ MakeRemoteDir() {
 
 # 上传 XML 文件到远程主机
 PushXml() {
-    scp -P8859 -i /root/.ssh/id_rsa -q oracle_check_*.xml [user]@[server_ip]:/autoc/ora_check/logs/${PROJECTNAME}/${ASSETID}
+    scp -P8859 -i /root/.ssh/id_rsa -q oracle_check_*.xml [user]@[server_ip]:/autoc/oracle_check/logs/${PROJECTNAME}/${ASSETID}
     if [[ $? -eq 0 ]]; then
         echo "$(InsertNode)${LIGHTGREEN}XML file pushed successfully.${NORMAL}"
         rm -f oracle_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
