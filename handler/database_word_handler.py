@@ -4,8 +4,8 @@
 包含图表生成器、结论和建议处理器、报告生成器。
 
 @author: Ryan和他的小伙伴们
-@date: 2026-06-12
-@version: 2.0
+@date: 2026-10-09
+@version: 2.1
 """
 
 import os
@@ -359,13 +359,13 @@ class DatabaseWordHandler:
     def parsexfl(self, sname, filelist, doc_obj=None, **kwargs):
         """
         解析XML文件，提取数据库信息
-        :param sname: 学校名称
+        :param sname: 项目名称
         :param filelist: XML文件列表
         :param doc_obj: XML文档对象
         :param kwargs: 其他参数
         :return: 包含数据库信息的字典
         """
-        kwargs['schoolname'] = sname
+        kwargs['projectname'] = sname
         checktimelist = []
         for file in filelist:
             try:
@@ -374,7 +374,7 @@ class DatabaseWordHandler:
                 print(" * [Error] " + str(e) + "  -->  " + file)
                 continue
         kwargs['checkdate'] = max(checktimelist)[:10] if checktimelist else "未知日期"
-        kwargs['checkusername'] = kwargs.get('checkusername', '售后运维部')
+        kwargs['checkusername'] = kwargs.get('checkusername', '巡检人')
 
         kwargs['database_base_check'] = []
         kwargs['database_detail_check'] = []
@@ -589,11 +589,11 @@ class DatabaseWordHandler:
         if username is None:
             username = input("请输入巡检人员姓名：").strip()
         if username == '':
-            username = '售后运维部'
+            username = '巡检人' 
 
         for sname, filelist in self.filedict.items():
             if not filelist:
-                print(f"警告：学校 {sname} 没有有效的 XML 文件，跳过报告生成")
+                print(f"警告：服务器 {sname} 没有有效的 XML 文件，跳过报告生成")
                 continue
 
             self.doc = DocxTemplate("database_template.docx")

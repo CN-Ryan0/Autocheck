@@ -94,16 +94,16 @@ CheckOracle(){
     :
 }
 
-# 获取学校名称和资产ID号
-GetSchoolNameAndAssetId(){
+# 获取项目名称和资产ID号
+GetProjectNameAndAssetId(){
     if [ ! -s "/etc/assetname" ]; then
         echo "${RED}Please fill in the asset information to /etc/assetname first.${NORMAL}"
-        echo "${RED}Examples：school name-system name-192.168.0.1${NORMAL}"
+        echo "${RED}Examples：project name-system name-192.168.0.1${NORMAL}"
         exit 2
     else
-        SCHOOLNAME=$(awk -F "-" '{print $1}' /etc/assetname)
+        PROJECTNAME=$(awk -F "-" '{print $1}' /etc/assetname)
         ASSETID=$(cat /etc/assetname | sha256sum | awk '{print $1}')
-        echo "$(InsertNode)${GREEN}SCHOOL:            ${SCHOOLNAME}${NORMAL}"
+        echo "$(InsertNode)${GREEN}PROJECTNAME:            ${PROJECTNAME}${NORMAL}"
         echo "$(InsertNode)${GREEN}ASSET ID:          ${ASSETID}${NORMAL}"
     fi
 }
@@ -198,9 +198,9 @@ GenerateXml(){
     echo '<?xml version="1.0" encoding="utf-8"?>'
     StartElement "systemchecklog"
 
-    StartElement "school"
+    StartElement "project"
     awk -F- '{print($1);}' /etc/assetname
-    EndElement "school"
+    EndElement "project"
 
     StartElement "application"
     awk -F- '{print($2);}' /etc/assetname
@@ -820,7 +820,7 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
 COLLECT_ONLINE=0
 CheckRoot
 OsCheck
-GetSchoolNameAndAssetId
+GetProjectNameAndAssetId
 GetOracleUser
 CommandCheck
 sqlpluscmd_check_fun

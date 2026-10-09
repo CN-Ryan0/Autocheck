@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 XML 文件解析模块
-提供对巡检 XML 文件的解析功能，支持获取学校、应用、资产ID等信息，
+提供对巡检 XML 文件的解析功能，支持获取项目、应用、资产ID等信息，
 以及通过 XPath 查询 section、member、node 等元素。
 
 @author: Ryan和他的小伙伴们
@@ -50,10 +50,10 @@ class XmlParser:
         return None
 
     @property
-    def get_school(self):
-        """学校名称"""
+    def get_project(self):
+        """项目名称"""
         if self.root is not None:
-            elem = self.root.find("school")
+            elem = self.root.find("project")
             if elem is not None and elem.text:
                 return elem.text.strip()
         return None

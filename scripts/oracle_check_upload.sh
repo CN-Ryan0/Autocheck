@@ -94,16 +94,16 @@ CheckOracle(){
     :
 }
 
-# 获取学校名称和资产ID号
-GetSchoolNameAndAssetId(){
+# 获取项目名称和资产ID号
+GetProjectNameAndAssetId(){
     if [ ! -s "/etc/assetname" ]; then
         echo "${RED}Please fill in the asset information to /etc/assetname first.${NORMAL}"
-        echo "${RED}Examples：school name-system name-192.168.0.1${NORMAL}"
+        echo "${RED}Examples：project name-system name-192.168.0.1${NORMAL}"
         exit 2
     else
-        SCHOOLNAME=$(awk -F "-" '{print $1}' /etc/assetname)
+        PROJECTNAME=$(awk -F "-" '{print $1}' /etc/assetname)
         ASSETID=$(cat /etc/assetname | sha256sum | awk '{print $1}')
-        echo "$(InsertNode)${GREEN}SCHOOL:            ${SCHOOLNAME}${NORMAL}"
+        echo "$(InsertNode)${GREEN}PROJECTNAME:            ${PROJECTNAME}${NORMAL}"
         echo "$(InsertNode)${GREEN}ASSET ID:          ${ASSETID}${NORMAL}"
     fi
 }
@@ -147,7 +147,7 @@ AddPrivateKey() {
 
 # 在远程主机上创建目录
 MakeRemoteDir() {
-        ssh -p 8859 -i /root/.ssh/id_rsa [user]@[server_ip] "mkdir -p /autoc/ora_check/logs/${SCHOOLNAME}/${ASSETID}"
+        ssh -p 8859 -i /root/.ssh/id_rsa [user]@[server_ip] "mkdir -p /autoc/ora_check/logs/${PROJECTNAME}/${ASSETID}"
         if [ $? -eq 0 ];then
             echo "$(InsertNode)${LIGHTGREEN}Remote log directory created successfully.${NORMAL}"
         else
@@ -157,10 +157,10 @@ MakeRemoteDir() {
 
 # 上传 XML 文件到远程主机
 PushXml() {
-    scp -P8859 -i /root/.ssh/id_rsa -q ora_check_*.xml [user]@[server_ip]:/autoc/ora_check/logs/${SCHOOLNAME}/${ASSETID}
+    scp -P8859 -i /root/.ssh/id_rsa -q oracle_check_*.xml [user]@[server_ip]:/autoc/ora_check/logs/${PROJECTNAME}/${ASSETID}
     if [[ $? -eq 0 ]]; then
         echo "$(InsertNode)${LIGHTGREEN}XML file pushed successfully.${NORMAL}"
-        rm -f ora_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
+        rm -f oracle_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
         return 0
     else
         echo "$(InsertNode)${BAD}Failed to push XML file. Please upload it manually.${NORMAL}"
@@ -245,9 +245,9 @@ GenerateXml(){
     echo '<?xml version="1.0" encoding="utf-8"?>'
     StartElement "systemchecklog"
 
-    StartElement "school"
+    StartElement "project"
     awk -F- '{print($1);}' /etc/assetname
-    EndElement "school"
+    EndElement "project"
 
     StartElement "application"
     awk -F- '{print($2);}' /etc/assetname
@@ -867,7 +867,7 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
 COLLECT_ONLINE=1
 CheckRoot
 OsCheck
-GetSchoolNameAndAssetId
+GetProjectNameAndAssetId
 GetOracleUser
 CommandCheck
 sqlpluscmd_check_fun

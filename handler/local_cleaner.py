@@ -19,7 +19,7 @@ class LocalCleaner:
     def __init__(self):
         self.base_dir = op.dirname(op.abspath(__file__))
         self.system_logs_dir = op.join(self.base_dir, '..', 'system_check', 'logs')
-        self.db_logs_dir = op.join(self.base_dir, '..', 'ora_check', 'logs')
+        self.db_logs_dir = op.join(self.base_dir, '..', 'oracle_check', 'logs')
 
     def delete_local_xml(self):
         """删除本地 XML 文件并重建目录"""

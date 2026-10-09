@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 文件夹解析模块
-用于遍历日志目录结构，获取各学校、各主机下的最新 XML 日志文件。
+用于遍历日志目录结构，获取各项目、各主机下的最新 XML 日志文件。
 
 @author: Ryan和他的小伙伴们
-@date: 2026-06-12
-@version: 2.0
+@date: 2026-10-09
+@version: 2.1
 """
 
 import os
@@ -14,11 +14,11 @@ import re
 
 
 class FolderParser:
-    """解析日志文件夹，提供获取学校、主机及最新 XML 文件的功能"""
+    """解析日志文件夹，提供获取项目、主机及最新 XML 文件的功能"""
 
     def __init__(self, sourcepath, xml_prefix='system_check_'):
         """
-        初始化，读取基础目录下的所有学校（一级子目录）
+        初始化，读取基础目录下的所有项目（一级子目录）
         :param sourcepath: 日志根目录路径
         :param xml_prefix: XML 文件名前缀，如 'system_check_' 或 'oracle_check_'
         """
@@ -26,7 +26,7 @@ class FolderParser:
         self.xml_suffix = '.xml'
         self.basedir = op.abspath(sourcepath)
         try:
-            self.get_all_school = os.listdir(self.basedir)
+            self.get_all_project = os.listdir(self.basedir)
         except FileNotFoundError as e:
             print(f"错误：目录不存在 - {e}")
             import sys
@@ -56,36 +56,36 @@ class FolderParser:
         matched.sort(key=lambda f: int(f[len(self.xml_prefix):-len(self.xml_suffix)]))
         return matched[-1]
 
-    def get_latest_log(self, schools=None, hosts=None, format='path'):
+    def get_latest_log(self, projectnames=None, hosts=None, format='path'):
         """
-        获取指定学校、主机的最近一次巡检日志文件路径或文件名。
-        :param schools: 学校名称（字符串或字符串列表），None 表示所有学校
-        :param hosts: 主机标识（字符串或字符串列表），None 表示该学校下的所有主机
+        获取指定项目、主机的最近一次巡检日志文件路径或文件名。
+        :param projectnames: 项目名称（字符串或字符串列表），None 表示所有项目
+        :param hosts: 主机标识（字符串或字符串列表），None 表示该项目下的所有主机
         :param format: 返回格式：'path' 返回完整路径，'name' 仅返回文件名
-        :return: 字典 {学校名: [文件路径/文件名列表]}
+        :return: 字典 {项目名: [文件路径/文件名列表]}
         """
         result = {}
 
-        if schools is None:
-            school_list = self.get_all_school
+        if projectnames is None:
+            project_list = self.get_all_project
         else:
-            school_list = [schools] if isinstance(schools, str) else list(schools)
+            project_list = [projectnames] if isinstance(projectnames, str) else list(projectnames)
 
         if hosts is not None:
             host_filter = [hosts] if isinstance(hosts, str) else list(hosts)
         else:
             host_filter = None
 
-        for school in school_list:
-            school_path = op.join(self.basedir, school)
-            if not op.isdir(school_path):
-                print(f"警告：学校目录不存在 - {school_path}")
+        for projectname in project_list:
+            project_path = op.join(self.basedir, projectname)
+            if not op.isdir(project_path):
+                print(f"警告：项目目录不存在 - {project_path}")
                 continue
 
             try:
-                all_hosts = os.listdir(school_path)
+                all_hosts = os.listdir(project_path)
             except PermissionError:
-                print(f"警告：无法读取学校目录 - {school_path}")
+                print(f"警告：无法读取项目目录 - {project_path}")
                 continue
 
             if host_filter is None:
@@ -95,7 +95,7 @@ class FolderParser:
 
             file_list = []
             for host in target_hosts:
-                host_dir = op.join(school_path, host)
+                host_dir = op.join(project_path, host)
                 latest_name = self._get_latest_xml_in_dir(host_dir)
                 if latest_name is None:
                     continue
@@ -105,33 +105,33 @@ class FolderParser:
                     file_list.append(latest_name)
 
             if file_list:
-                result[school] = file_list
+                result[projectname] = file_list
 
         return result
 
-    def get_host(self, *schools):
-        """获取指定学校（或所有学校）下的主机列表"""
-        if schools:
-            school_list = []
-            for arg in schools:
+    def get_host(self, *projectnames):
+        """获取指定项目（或所有项目）下的主机列表"""
+        if projectnames:
+            project_list = []
+            for arg in projectnames:
                 if isinstance(arg, (list, tuple)):
-                    school_list.extend(arg)
+                    project_list.extend(arg)
                 else:
-                    school_list.append(arg)
+                    project_list.append(arg)
         else:
-            school_list = self.get_all_school
+            project_list = self.get_all_project
 
         result = {}
-        for school in school_list:
-            school_path = op.join(self.basedir, school)
-            if not op.isdir(school_path):
-                print(f"警告：学校目录不存在 - {school_path}")
+        for projectname in project_list:
+            project_path = op.join(self.basedir, projectname)
+            if not op.isdir(project_path):
+                print(f"警告：项目目录不存在 - {project_path}")
                 continue
             try:
-                hosts = os.listdir(school_path)
+                hosts = os.listdir(project_path)
             except PermissionError:
-                print(f"警告：无法读取学校目录 - {school_path}")
+                print(f"警告：无法读取项目目录 - {project_path}")
                 continue
-            result[school] = hosts
+            result[projectname] = hosts
 
         return result

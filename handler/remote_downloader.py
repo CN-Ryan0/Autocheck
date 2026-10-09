@@ -26,7 +26,7 @@ class RemoteDownloader:
 
         self.base_dir = op.dirname(op.abspath(__file__))
         self.system_logs_dir = op.join(self.base_dir, '..', 'system_check', 'logs')
-        self.db_logs_dir = op.join(self.base_dir, '..', 'ora_check', 'logs')
+        self.db_logs_dir = op.join(self.base_dir, '..', 'oracle_check', 'logs')
 
     def _to_cygwin_path(self, win_path):
         """将 Windows 路径转换为 Cygwin/rsync 可用的格式"""

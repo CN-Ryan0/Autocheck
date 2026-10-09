@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # 输入巡检人员姓名（只输入一次）
     username = input("\n请输入巡检人员姓名：").strip()
     if username == '':
-        username = '售后运维部'
+        username = '巡检人'
     print(f"巡检人员：{username}")
 
     # 先生成服务器报告

@@ -4,8 +4,8 @@
 包含检测器、结果与建议处理器、报告生成器。
 
 @author: Ryan和他的小伙伴们
-@date: 2026-06-12
-@version: 2.0
+@date: 2026-10-09
+@version: 2.1
 """
 
 import os
@@ -335,8 +335,8 @@ class ServerWordHandler:
 
         return [value, state]
 
-    def parsexfl(self, sname, filelist, **kwargs):
-        kwargs['schoolname'] = sname
+    def parsexfl(self, projectname, filelist, **kwargs):
+        kwargs['projectname'] = projectname
         checktimelist = []
         for file in filelist:
             xp = XmlParser(file)
@@ -344,7 +344,7 @@ class ServerWordHandler:
             if t:
                 checktimelist.append(t)
         kwargs['checkdate'] = max(checktimelist)[:10] if checktimelist else "未知日期"
-        kwargs['checkusername'] = kwargs.get('checkusername', '售后运维部')
+        kwargs['checkusername'] = kwargs.get('checkusername', '巡检人')
 
         kwargs['base_info'] = []
         kwargs['system_check'] = []
@@ -495,11 +495,11 @@ class ServerWordHandler:
         if username is None:
             username = input("请输入巡检人员姓名：").strip()
         if username == '':
-            username = '售后运维部'
+            username = '巡检人'
 
         for sname, filelist in self.filedict.items():
             if not filelist:
-                print(f"警告：学校 {sname} 没有有效的 XML 文件，跳过报告生成")
+                print(f"警告：服务器 {sname} 没有有效的 XML 文件，跳过报告生成")
                 continue
             self.doc = DocxTemplate("server_template.docx")
             context = self.parsexfl(sname, filelist, checkusername=username)

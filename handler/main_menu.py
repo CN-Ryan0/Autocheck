@@ -69,7 +69,7 @@ class MainMenu:
 
         username = input("\n请输入巡检人员姓名（直接回车使用默认值）: ").strip()
         if username == '':
-            username = '售后运维部'
+            username = '巡检人'
         print("巡检人员：{}".format(username))
 
         print("\n正在生成服务器巡检报告...")
