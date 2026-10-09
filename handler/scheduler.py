@@ -43,7 +43,7 @@ def generate_database_report(username):
     print("="*50)
 
     try:
-        fp_obj = FolderParser(r'../ora_check/logs', xml_prefix='ora_check_')
+        fp_obj = FolderParser(r'../oracle_check/logs', xml_prefix='oracle_check_')
         filedict = fp_obj.get_latest_log()
 
         if not filedict:

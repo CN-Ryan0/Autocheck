@@ -20,16 +20,6 @@ InsertNode(){
 }
 
 # 用户输入信息
-UserInputQuiet() {
-    STATUS=1
-    while [ ${STATUS} -eq 1 ]; do
-        read -s -p "$(InsertNode)${LIGHTBLUE}$1: ${NORMAL}" $2
-        STATUS=$?
-    done
-    echo
-}
-
-# 用户输入信息
 UserInput() {
     STATUS=1
     while [ ${STATUS} -eq 1 ]; do
@@ -44,9 +34,7 @@ GetDistroInfo(){
         DISTRO_NAME="$ID"
         DISTRO_VERSION="$VERSION_ID"
         DISTRO_CODE="$VERSION_CODENAME"
-        # 兼容部分发行版没有 VERSION_CODENAME 的情况
         [ -z "$DISTRO_CODE" ] && DISTRO_CODE=$(echo "$VERSION_ID" | sed -E 's/.*\((.+)\)/\1/')
-        # 处理 CentOS 等 ID 可能为 "centos" 或 "rhel"
         case "$DISTRO_NAME" in
             rhel) DISTRO_NAME="Red Hat Enterprise Linux";;
             centos) DISTRO_NAME="CentOS";;
@@ -90,7 +78,6 @@ OsCheck(){
         echo "${RED}Error: This script is only applicable to Anolis/redhat/centos/ubuntu/Oracle Linux!${NORMAL}"
         exit 2
     fi
-    # 如果后续代码需要 DistroName 变量，将其赋值
     DistroName="$DISTRO_NAME"
 }
 
@@ -104,12 +91,7 @@ CheckRoot(){
 
 # oracle用户检查
 CheckOracle(){
-    # 已由 GetOracleUser 处理，此处保留空函数以防万一
     :
-    #if [ -z "$ORACLE_USER" ]; then
-    #    echo "${RED}Error: The user $ORACLE_USER does not exist. Check whether Oracle is installed!${NORMAL}"
-    #    exit 2
-    #fi
 }
 
 # 获取学校名称和资产ID号
@@ -119,8 +101,6 @@ GetSchoolNameAndAssetId(){
         echo "${RED}Examples：school name-system name-192.168.0.1${NORMAL}"
         exit 2
     else
-        #SCHOOLNAME=`awk -F "-" '{print($1);}' /etc/assetname`
-        #ASSETID=`cat /etc/assetname|sha256sum|awk '{print($1);}'`
         SCHOOLNAME=$(awk -F "-" '{print $1}' /etc/assetname)
         ASSETID=$(cat /etc/assetname | sha256sum | awk '{print $1}')
         echo "$(InsertNode)${GREEN}SCHOOL:            ${SCHOOLNAME}${NORMAL}"
@@ -139,35 +119,6 @@ GetOracleUser() {
         exit 2
     fi
     echo "$(InsertNode)${GREEN}Using Oracle user: ${ORACLE_USER}${NORMAL}"
-}
-
-# 检查互联网访问
-net_or_local(){
-  echo "$(InsertNode)1. Collect and upload data."
-  echo "$(InsertNode)2. Collect data only."
-  while :
-  do
-      UserInput "Please enter serial number" "CHOOSE_NUMBER"
-      case ${CHOOSE_NUMBER} in
-          1)
-              COLLECT_ONLINE=1
-              break
-              ;;
-          2)
-              COLLECT_ONLINE=0
-              break
-              ;;
-          *)
-              echo "$(InsertNode)${BAD}Input error!${NORMAL}"
-              ;;
-      esac
-  done
-  if [ $COLLECT_ONLINE -eq 1 ];then
-      if echo `ping -c1 ipaddress 2>&1` | grep -qi "Unreachable"; then
-          echo "$(InsertNode)${RED}The gateway failed to request the Internet. Only data is collected!${NORMAL}"
-          COLLECT_ONLINE=0
-      fi
-  fi
 }
 
 # 如果 root/.ssh 目录不存在，则创建它
@@ -210,8 +161,10 @@ PushXml() {
     if [[ $? -eq 0 ]]; then
         echo "$(InsertNode)${LIGHTGREEN}XML file pushed successfully.${NORMAL}"
         rm -f ora_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
+        return 0
     else
         echo "$(InsertNode)${BAD}Failed to push XML file. Please upload it manually.${NORMAL}"
+        return 1
     fi
 }
 
@@ -271,7 +224,6 @@ EOF"
 # 生成 XML 文件
 # 收集数据
 GenerateXml(){
-    # XML 元素函数
     StartElement() {
         echo "<$1>"
     }
@@ -874,13 +826,11 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
     get_cron() {
         local user=$1
         local cron_content=""
-        # 尝试直接读取 crontab 文件（路径因发行版而异）
         if [ -f "/var/spool/cron/$user" ]; then
             cron_content=$(cat "/var/spool/cron/$user" 2>/dev/null)
         elif [ -f "/var/spool/cron/crontabs/$user" ]; then
             cron_content=$(cat "/var/spool/cron/crontabs/$user" 2>/dev/null)
         fi
-        # 如果文件不存在或为空，尝试使用 crontab -l 命令
         if [ -z "$cron_content" ]; then
             if [ "$user" = "root" ]; then
                 cron_content=$(crontab -l 2>/dev/null)
@@ -888,7 +838,6 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
                 cron_content=$(su - "$user" -c "crontab -l 2>/dev/null")
             fi
         fi
-        # 过滤注释和空行
         echo "$cron_content" | grep -v '^#' | sed '/^$/d'
     }
 
@@ -915,16 +864,15 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
 
 
 ################################################################################
+COLLECT_ONLINE=1
 CheckRoot
 OsCheck
-net_or_local
 GetSchoolNameAndAssetId
-#CheckOracle
 GetOracleUser
 CommandCheck
 sqlpluscmd_check_fun
 echo "$(InsertNode)${BROWN}Inspecting...${NORMAL}"
-GenerateXml > ora_check_`date +%Y%m%d%H%M%S`.xml
+GenerateXml > oracle_check_`date +%Y%m%d%H%M%S`.xml
 if [[ $? -ne 0 ]]; then
     echo "$(InsertNode)${RED}Data collection failed, no XML file was generated.${NORMAL}"
 fi
@@ -934,9 +882,9 @@ if [ $COLLECT_ONLINE -eq 1 ];then
     AddPrivateKey
     MakeRemoteDir
     PushXml
-fi
-if [ $COLLECT_ONLINE -eq 0 ];then
-    mkdir $ASSETID 2> /dev/null
-    mv ora_check_*.xml $ASSETID
-    echo "$(InsertNode)${LIGHTGREEN}Data collection is complete, please upload the XML file manually.${NORMAL}"
+    if [ $? -ne 0 ];then
+        mkdir $ASSETID 2> /dev/null
+        mv oracle_check_*.xml $ASSETID
+        echo "$(InsertNode)${YELLOW}Upload failed, XML file saved locally to $ASSETID.${NORMAL}"
+    fi
 fi

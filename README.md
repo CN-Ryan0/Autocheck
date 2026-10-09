@@ -74,16 +74,16 @@ python main_menu.py
 |------|------|
 | 1 | 下载巡检文件 — 从远程服务器通过 rsync 同步最新 XML 数据 |
 | 2 | 生成巡检报告 — 解析 XML 并生成 Word 巡检报告 |
-| 3 | 删除本地旧文件 — 清理 `system_check/logs/` 和 `ora_check/logs/` 目录 |
+| 3 | 删除本地旧文件 — 清理 `system_check/logs/` 和 `oracle_check/logs/` 目录 |
 | 0 | 退出程序 |
 
 ### 报告生成流程
 
-1. 选择 **1** 下载远程 XML 数据（`system_check_<timestamp>.xml` 和 `ora_check_<timestamp>.xml`）
+1. 选择 **1** 下载远程 XML 数据（`system_check_<timestamp>.xml` 和 `oracle_check_<timestamp>.xml`）
 2. 选择 **2** 生成报告，程序将依次生成：
    - 服务器巡检报告（含 21 项阈值检查）
    - 数据库巡检报告（含磁盘/CPU/内存图表分析）
-3. 报告保存至 `check_report/` 目录，文件名格式：`YYYY-MM<学校名><类型>巡检报告.doc`
+3. 报告保存至 `check_report/` 目录，文件名格式：`YYYY-MM<项目名><类型>巡检报告.doc`
 
 ## 项目结构
 
@@ -114,7 +114,7 @@ Autocheck/
 
 ### 远程服务器要求
 
-- 远程服务器必须存在 `/etc/assetname` 文件，格式为：`学校名称-系统名称-IP地址`
+- 远程服务器必须存在 `/etc/assetname` 文件，格式为：`项目名称-系统名称-IP地址`
 - 采集脚本仅支持 **Anolis / CentOS / Ubuntu / RedHat / Oracle Linux** 系统
 - 采集脚本需要 **root 权限** 执行
 - `ora_check_xml.sh` 自动检测 Oracle 用户（优先 `oracle`，备用 `oracle12c`）

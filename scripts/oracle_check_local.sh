@@ -121,51 +121,6 @@ GetOracleUser() {
     echo "$(InsertNode)${GREEN}Using Oracle user: ${ORACLE_USER}${NORMAL}"
 }
 
-# 如果 root/.ssh 目录不存在，则创建它
-MakeSshDir() {
-    [[ ! -d "/root/.ssh" ]] && mkdir /root/.ssh && echo "$(InsertNode)${LIGHTGREEN}Directory .ssh created successfully.${NORMAL}"
-}
-
-# 添加远程主机信息到 known_hosts 文件
-AddOrModifyKnownHosts() {
-    echo "$(InsertNode)Please manually add the server host key to /root/.ssh/known_hosts:"
-    echo "$(InsertNode)  ssh-keyscan -p 8859 [server_ip] >> /root/.ssh/known_hosts"
-    echo "$(InsertNode)Or add this line manually:"
-    echo "$(InsertNode)  [server_ip]:8859 <host_key_from_server>"
-}
-
-# 添加私钥
-AddPrivateKey() {
-    KEY_PATH="/root/.ssh/id_rsa"
-    if [ -f "$KEY_PATH" ]; then
-        echo "$(InsertNode)${LIGHTGREEN}SSH key already exists at $KEY_PATH${NORMAL}"
-    else
-        echo "$(InsertNode)${YELLOW}Please place your SSH private key at: $KEY_PATH${NORMAL}"
-        echo "$(InsertNode)${YELLOW}The key should be authorized on the remote server (port 8859)${NORMAL}"
-    fi
-}
-
-# 在远程主机上创建目录
-MakeRemoteDir() {
-        ssh -p 8859 -i /root/.ssh/id_rsa [user]@[server_ip] "mkdir -p /autoc/ora_check/logs/${SCHOOLNAME}/${ASSETID}"
-        if [ $? -eq 0 ];then
-            echo "$(InsertNode)${LIGHTGREEN}Remote log directory created successfully.${NORMAL}"
-        else
-            echo "$(InsertNode)${BAD}Failed to create remote log directory.${NORMAL}"
-        fi
-}
-
-# 上传 XML 文件到远程主机
-PushXml() {
-    scp -P8859 -i /root/.ssh/id_rsa -q ora_check_*.xml [user]@[server_ip]:/autoc/ora_check/logs/${SCHOOLNAME}/${ASSETID}
-    if [[ $? -eq 0 ]]; then
-        echo "$(InsertNode)${LIGHTGREEN}XML file pushed successfully.${NORMAL}"
-        rm -f ora_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
-    else
-        echo "$(InsertNode)${BAD}Failed to push XML file. Please upload it manually.${NORMAL}"
-    fi
-}
-
 # 确定连接数据库时使用的命令。例如： sqlplus / as sysdba。
 sqlpluscmd_check_fun() {
 sqlpluscmd_check(){
@@ -862,7 +817,7 @@ select tablespace_name, file_name, bytes/1024/1024 as Used_Size_M, maxbytes/1024
 
 
 ################################################################################
-COLLECT_ONLINE=1
+COLLECT_ONLINE=0
 CheckRoot
 OsCheck
 GetSchoolNameAndAssetId
@@ -870,14 +825,12 @@ GetOracleUser
 CommandCheck
 sqlpluscmd_check_fun
 echo "$(InsertNode)${BROWN}Inspecting...${NORMAL}"
-GenerateXml > ora_check_`date +%Y%m%d%H%M%S`.xml
+GenerateXml > oracle_check_`date +%Y%m%d%H%M%S`.xml
 if [[ $? -ne 0 ]]; then
     echo "$(InsertNode)${RED}Data collection failed, no XML file was generated.${NORMAL}"
 fi
-if [ $COLLECT_ONLINE -eq 1 ];then
-    MakeSshDir
-    AddOrModifyKnownHosts
-    AddPrivateKey
-    MakeRemoteDir
-    PushXml
+if [ $COLLECT_ONLINE -eq 0 ];then
+    mkdir $ASSETID 2> /dev/null
+    mv oracle_check_*.xml $ASSETID
+    echo "$(InsertNode)${LIGHTGREEN}Data collection is complete, please upload the XML file manually.${NORMAL}"
 fi

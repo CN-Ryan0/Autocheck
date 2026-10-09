@@ -141,8 +141,10 @@ PushXml() {
     if [[ $? -eq 0 ]]; then
         echo "$(InsertNode)${LIGHTGREEN}XML file pushed successfully.${NORMAL}"
         rm -f system_check_*.xml && echo "$(InsertNode)${LIGHTGREEN}XML file cleared.${NORMAL}"
+        return 0
     else
         echo "$(InsertNode)${BAD}Failed to push XML file. Please upload it manually.${NORMAL}"
+        return 1
     fi
 }
 
@@ -637,4 +639,9 @@ if [ $COLLECT_ONLINE -eq 1 ];then
     AddPrivateKey
     MakeRemoteDir
     PushXml
+    if [ $? -ne 0 ];then
+        mkdir $ASSETID 2> /dev/null
+        mv system_check_*.xml $ASSETID
+        echo "$(InsertNode)${YELLOW}Upload failed, XML file saved locally to $ASSETID.${NORMAL}"
+    fi
 fi

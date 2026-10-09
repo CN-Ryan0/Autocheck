@@ -20,7 +20,7 @@ class FolderParser:
         """
         初始化，读取基础目录下的所有学校（一级子目录）
         :param sourcepath: 日志根目录路径
-        :param xml_prefix: XML 文件名前缀，如 'system_check_' 或 'ora_check_'
+        :param xml_prefix: XML 文件名前缀，如 'system_check_' 或 'oracle_check_'
         """
         self.xml_prefix = xml_prefix
         self.xml_suffix = '.xml'

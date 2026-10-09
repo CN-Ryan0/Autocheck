@@ -96,7 +96,7 @@ class MainMenu:
         print("=" * 50)
         print("\n将删除以下目录中的所有文件：")
         print("  - system_check/logs/")
-        print("  - ora_check/logs/")
+        print("  - oracle_check/logs/")
 
         confirm = input("\n确认删除？(y/N): ").strip().lower()
         if confirm != 'y':
